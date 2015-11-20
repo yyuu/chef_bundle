@@ -10,7 +10,7 @@ end.run_action(:create)
 
 chef_bundle "aws-sdk" do
   gemfile "/root/aws-gemfile"
-  options ["--without", "development", "test"]
+  options ["--deployment", "--system", "--without", "development", "test"]
 end
 
 smoke_test "aws-sdk"
