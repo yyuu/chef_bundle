@@ -1,0 +1,7 @@
+name             'chef_bundle'
+maintainer       'YOUR_NAME'
+maintainer_email 'YOUR_EMAIL'
+license          'All rights reserved'
+description      'Installs/Configures chef_bundle'
+long_description 'Installs/Configures chef_bundle'
+version          '0.1.0'
