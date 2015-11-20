@@ -12,6 +12,7 @@ class Chef
         super
         @action = :install
         @allowed_actions += [:install]
+        @compile_time = Chef::Config[:chef_gem_compile_time]
         @resource_name = :chef_bundle
         @provider = Chef::Provider::Execute
       end
@@ -53,6 +54,10 @@ class Chef
         end
       end
 
+      def compile_time(arg=nil)
+        set_or_return(:compile_time, arg, :kind_of => [TrueClass, FalseClass])
+      end
+
       def gemfile(arg=nil)
         set_or_return(:gemfile, arg, :kind_of => String)
       end
@@ -82,8 +87,10 @@ class Chef
       end
 
       def after_created()
-        self.run_action(:run)
-        Gem.clear_paths
+        if compile_time or compile_time.nil?
+          self.run_action(:run)
+          Gem.clear_paths
+        end
       end
     end
   end
