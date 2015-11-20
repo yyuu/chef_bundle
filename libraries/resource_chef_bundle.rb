@@ -13,12 +13,7 @@ class Chef
         @resource_name = :chef_bundle
         @compile_time = Chef::Config[:chef_gem_compile_time]
         @gemfile = nil
-        @deployment = nil
-        @no_cache = false
-        @no_prune = false
-        @path = nil
-        @without = []
-        @with = []
+        @options = []
       end
 
       def command(arg=nil)
@@ -32,35 +27,11 @@ class Chef
           if gemfile
             cmdline << "--gemfile" << gemfile.to_s
           end
-          if deployment
-            cmdline << "--deployment"
-          end
-          if no_cache
-            cmdline << "--no-cache"
-          end
-          if no_prune
-            cmdline << "--no-prune"
-          end
-          if path
-            cmdline << "--path" << path.to_s
-          end
-          if without
-            Array(without).each do |group|
-              cmdline << "--without" << group.to_s
-            end
-          end
-          if with
-            Array(with).each do |group|
-              cmdline << "--with" << group.to_s
-            end
+          Array(@options).each do |option|
+            cmdline << option.to_s
           end
         end
-        if Chef::Platform.windows?
-          @command = cmdline.join(" ")
-        else
-          require "shellwords"
-          @command = Shellwords.shelljoin(cmdline)
-        end
+        @command = cmdline.join(" ")
       end
 
       def compile_time(arg=nil)
@@ -71,41 +42,14 @@ class Chef
         set_or_return(:gemfile, arg, :kind_of => String, :required => true)
       end
 
-      def deployment(arg=nil)
-        set_or_return(:deployment, arg, :kind_of => [TrueClass, FalseClass])
-      end
-
-      def no_cache(arg=nil)
-        set_or_return(:no_cache, arg, :kind_of => [TrueClass, FalseClass])
-      end
-
-      def no_prune(arg=nil)
-        set_or_return(:no_prune, arg, :kind_of => [TrueClass, FalseClass])
-      end
-
-      def path(arg=nil)
-        set_or_return(:path, arg, :kind_of => String)
-      end
-
-      def without(arg=nil)
+      def options(arg=nil)
         if arg
-          Array(arg).each do |group|
-            validate({:without => group}, {:without => {:kind_of => String}})
+          Array(arg).each do |option|
+            validate({:options => option}, {:options => {:kind_of => String}})
           end
-          @without += Array(arg)
+          @options = arg
         else
-          @without
-        end
-      end
-
-      def with(arg=nil)
-        if arg
-          Array(arg).each do |group|
-            validate({:with => group}, {:with => {:kind_of => String}})
-          end
-          @with += Array(arg)
-        else
-          @with
+          @options
         end
       end
 
