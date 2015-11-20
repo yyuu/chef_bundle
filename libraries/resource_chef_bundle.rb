@@ -22,7 +22,7 @@ class Chef
         bundle = ::File.join(::RbConfig::CONFIG["bindir"], "bundle")
         cmdline = [bundle]
         case @action
-        when :install
+        when :install, :run
           cmdline << "install"
           if gemfile
             cmdline << "--gemfile" << gemfile.to_s
@@ -55,7 +55,9 @@ class Chef
 
       def after_created()
         if compile_time or compile_time.nil?
-          self.run_action(:run)
+          Array(action).each do |action|
+            self.run_action(action)
+          end
           Gem.clear_paths
         end
       end
