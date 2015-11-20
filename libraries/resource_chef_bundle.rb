@@ -1,6 +1,5 @@
 require "chef/resource/execute"
 require "rbconfig"
-require "shellwords"
 
 class Chef
   class Resource
@@ -9,12 +8,18 @@ class Chef
       provides :chef_bundle, :on_platforms => :all
 
       def initialize(name, run_context=nil)
-        super
+        super(name, run_context)
         @action = :install
         @allowed_actions += [:install]
-        @compile_time = Chef::Config[:chef_gem_compile_time]
         @resource_name = :chef_bundle
-        @provider = Chef::Provider::Execute
+        @compile_time = Chef::Config[:chef_gem_compile_time]
+        @gemfile = nil
+        @deployment = nil
+        @no_cache = false
+        @no_prune = false
+        @path = nil
+        @without = []
+        @with = []
       end
 
       def command(arg=nil)
@@ -26,7 +31,7 @@ class Chef
         when :install
           cmdline << "install"
           if gemfile
-            cmdline << "--gemfile" << gemfile
+            cmdline << "--gemfile" << gemfile.to_s
           end
           if deployment
             cmdline << "--deployment"
@@ -38,19 +43,24 @@ class Chef
             cmdline << "--no-prune"
           end
           if path
-            cmdline << "--path" << path
+            cmdline << "--path" << path.to_s
           end
           if without
-            cmdline << "--without" << without
+            Array(without).each do |group|
+              cmdline << "--without" << group.to_s
+            end
           end
           if with
-            cmdline << "--with" << with
+            Array(with).each do |group|
+              cmdline << "--with" << group.to_s
+            end
           end
         end
         if Chef::Platform.windows?
-          cmdline.join(" ")
+          @command = cmdline.join(" ")
         else
-          Shellwords.shelljoin(cmdline)
+          require "shellwords"
+          @command = Shellwords.shelljoin(cmdline)
         end
       end
 
@@ -59,7 +69,7 @@ class Chef
       end
 
       def gemfile(arg=nil)
-        set_or_return(:gemfile, arg, :kind_of => String)
+        set_or_return(:gemfile, arg, :kind_of => String, :required => true)
       end
 
       def deployment(arg=nil)
@@ -79,11 +89,25 @@ class Chef
       end
 
       def without(arg=nil)
-        set_or_return(:without, arg, :kind_of => [String])
+        if arg
+          Array(arg).each do |group|
+            validate({:without => group}, {:without => {:kind_of => String}})
+          end
+          @without += Array(arg)
+        else
+          @without
+        end
       end
 
       def with(arg=nil)
-        set_or_return(:with, arg, :kind_of => [String])
+        if arg
+          Array(arg).each do |group|
+            validate({:with => group}, {:with => {:kind_of => String}})
+          end
+          @with += Array(arg)
+        else
+          @with
+        end
       end
 
       def after_created()
