@@ -1,6 +1,6 @@
 # `chef_bundle`
 
-Provices Bundler for Chef.
+Provides Bundler for Chef.
 
 ## Supported Platforms
 
@@ -8,7 +8,18 @@ Provices Bundler for Chef.
 
 ## Examples
 
-TODO
+Installs Gem dependencies with using `Gemfile`.
+
+```rb
+cookbook_file "/root/Gemfile" do
+  source "Gemfile"
+end.run_action(:create)
+
+chef_bundle "aws-sdk" do
+  gemfile "/root/Gemfile"
+  action :install
+end
+```
 
 ## License and Authors
 
