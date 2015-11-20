@@ -1,4 +1,4 @@
-# `chef_bundle`
+# chef-bundle
 
 Provides Bundler for Chef.
 
