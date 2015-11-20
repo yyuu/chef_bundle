@@ -12,3 +12,5 @@ chef_bundle "aws-sdk" do
   gemfile "/root/Gemfile"
   without ["development", "test"]
 end
+
+smoke_test "aws-sdk"

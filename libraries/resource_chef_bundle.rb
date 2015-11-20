@@ -4,7 +4,6 @@ require "rbconfig"
 class Chef
   class Resource
     class ChefBundle < Chef::Resource::Execute
-
       provides :chef_bundle, :on_platforms => :all
 
       def initialize(name, run_context=nil)
