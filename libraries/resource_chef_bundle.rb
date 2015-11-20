@@ -21,7 +21,7 @@ class Chef
         # TODO: install bundler if missing?
         bundle = ::File.join(::RbConfig::CONFIG["bindir"], "bundle")
         cmdline = [bundle]
-        case @action
+        case Array(action).first # FIXME: only first action is effective
         when :install, :run
           cmdline << "install"
           if gemfile
