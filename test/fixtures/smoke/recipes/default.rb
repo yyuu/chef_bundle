@@ -1,15 +1,15 @@
 include_recipe "chef_bundle"
 
-cookbook_file "/root/aws-gemfile" do
-  source "aws-gemfile"
+cookbook_file "/root/custom-gemfile" do
+  source "custom-gemfile"
 end.run_action(:create)
 
-cookbook_file "/root/aws-gemfile.lock" do
-  source "aws-gemfile.lock"
+cookbook_file "/root/custom-gemfile.lock" do
+  source "custom-gemfile.lock"
 end.run_action(:create)
 
-chef_bundle "aws-sdk" do
-  gemfile "/root/aws-gemfile"
+chef_bundle "custom" do
+  gemfile "/root/custom-gemfile"
   options ["--system", "--without", "development", "test"]
 end
 
